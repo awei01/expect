@@ -100,6 +100,20 @@ describe('A spy', () => {
       spy(1, 2, 3)
       expect(otherArguments).toEqual([ 1, 2, 3 ])
     })
+
+    it('subsequent assignment of thrown value removes called function and throws', () => {
+      spy.andThrow('some error')
+      expect(() => {
+        spy()
+      }).toThrow('some error')
+      expect(otherContext).toBe(null)
+    })
+
+    it('subsequent assignment of return value removes called function and returns value', () => {
+      spy.andReturn('result')
+      expect(spy()).toBe('result')
+      expect(otherContext).toBe(null)
+    })
   })
 
   describe('that calls through', () => {
@@ -122,6 +136,20 @@ describe('A spy', () => {
       spy(1, 2, 3)
       expect(targetArguments).toEqual([ 1, 2, 3 ])
     })
+
+    it('subsequent assignment of thrown value removes called function and throws', () => {
+      spy.andThrow('some error')
+      expect(() => {
+        spy()
+      }).toThrow('some error')
+      expect(targetContext).toBe(null)
+    })
+
+    it('subsequent assignment of return value removes called function and returns value', () => {
+      spy.andReturn('result')
+      expect(spy()).toBe('result')
+      expect(targetContext).toBe(null)
+    })
   })
 
   describe('with a thrown value', () => {
@@ -132,6 +160,27 @@ describe('A spy', () => {
     it('throws the correct value', () => {
       expect(spy).toThrow('hello')
     })
+
+    it('subsequent assignment of called function does not throw and calls function', () => {
+      let result
+      function calledFn() {
+        return 'result'
+      }
+      spy.andCall(calledFn)
+      expect(() => {
+        result = spy()
+      }).toNotThrow()
+      expect(result).toBe('result')
+    })
+
+    it('subsequent assignment of return value does not throw and returns value', () => {
+      let result
+      spy.andReturn('result')
+      expect(() => {
+        result = spy()
+      }).toNotThrow()
+      expect(result).toBe('result')
+    })
   })
 
   describe('with a return value', () => {
@@ -141,6 +190,25 @@ describe('A spy', () => {
 
     it('returns the correct value', () => {
       expect(spy()).toEqual('hello')
+    })
+
+    it('subsequent assignment of called function calls function and unsets return value', () => {
+      function calledFn() {
+        return 'result'
+      }
+      spy.andCall(calledFn)
+      expect(spy()).toBe('result')
+      spy.andCall(null)
+      expect(spy()).toBe(undefined)
+    })
+
+    it('subsequent assignment of thrown value throws value and unsets return value', () => {
+      spy.andThrow('some error')
+      expect(() => {
+        spy()
+      }).toThrow('some error')
+      spy.andThrow(null)
+      expect(spy()).toBe(undefined)
     })
   })
 })

@@ -60,6 +60,7 @@ export const createSpy = (fn, restore = noop) => {
   spy.calls = []
 
   spy.andCall = (otherFn) => {
+    thrownValue = returnValue = undefined
     targetFn = otherFn
     return spy
   }
@@ -68,11 +69,13 @@ export const createSpy = (fn, restore = noop) => {
     spy.andCall(fn)
 
   spy.andThrow = (value) => {
+    targetFn = returnValue = undefined
     thrownValue = value
     return spy
   }
 
   spy.andReturn = (value) => {
+    targetFn = thrownValue = undefined
     returnValue = value
     return spy
   }
